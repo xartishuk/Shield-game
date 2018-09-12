@@ -11,24 +11,37 @@ public class PlayerMovement : MonoBehaviour {
     public float acceleration = 1f;
     public float deceleration = 1f;
     public float maxSpeed = 1f;
+    public float jumpMultiplier = 1f;
+    private Vector2 jumpVector;
 
 	// Use this for initialization
 	void Start () {
         horizontal = 0f;
         velocity = new Vector2();
+        jumpVector = new Vector2(0, jumpMultiplier);
 	}
 	
 	// Update is called once per frame
-	void FixedUpdate () {
+    private void Update()
+    {
 
-        HorizontalSnappy();
+        HorizontalMovement();
+        Jump();
+        
+    }
 
-        velocity.y = rb.velocity.y;
-        rb.velocity = velocity;
-	}
+    void Jump()
+    {
+        if (Input.GetButtonDown("Jump"))
+        {
+            velocity.x = rb.velocity.x;
+            velocity.y = 0;
+            rb.velocity = velocity;
+            rb.AddForce(jumpVector, ForceMode2D.Impulse);
+        }
+    }
 
-
-    void HorizontalSnappy()
+    void HorizontalMovement()
     {
         if ((horizontal = Input.GetAxis("Horizontal")) != 0)
         {
@@ -38,25 +51,8 @@ public class PlayerMovement : MonoBehaviour {
         {
             velocity.x = 0;
         }
-    }
 
-    void HorizontalSlippery()
-    {
-        if ((horizontal = Input.GetAxis("Horizontal")) != 0)
-        {
-            velocity.x += Mathf.Sign(horizontal) * acceleration * Time.fixedDeltaTime;
-            velocity.x = Mathf.Clamp(velocity.x, -maxSpeed, maxSpeed);
-        }
-        else
-        {
-            if (velocity.x != 0f && (Mathf.Abs(velocity.x) > Mathf.Abs(acceleration * Time.fixedDeltaTime)))
-            {
-                velocity.x -= Mathf.Sign(velocity.x) * acceleration * Time.fixedDeltaTime;
-            }
-            else
-            {
-                velocity.x = 0;
-            }
-        }
+        velocity.y = rb.velocity.y;
+        rb.velocity = velocity;
     }
 }
